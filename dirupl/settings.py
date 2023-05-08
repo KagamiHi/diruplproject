@@ -13,9 +13,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 
 import os
+from dotenv import load_dotenv
 
 from django.urls import reverse_lazy
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,10 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-rc$=t^1%f!4=z4+v8=wa5k1=qgl4s_*%=33gyy6=@_oih@ggwn"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -35,7 +37,11 @@ ALLOWED_HOSTS = []
 # Application definition
 APPLICATIONS = [
     "dirupl.spa",
+    "dirupl.users",
+    "dirupl.common",
+    "dirupl.address_directory",
 ]
+
 SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -93,6 +99,10 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Authentification rules #
+
+AUTH_USER_MODEL = "users.CustomUser"
 
 # Login
 
@@ -181,3 +191,6 @@ LOGGING = {
         },
     },
 }
+
+### Discord bot ###
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_TOKEN')
