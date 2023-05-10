@@ -3,3 +3,4 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 class SpaView(LoginRequiredMixin, TemplateView):
     template_name = "spa/index.html"
+

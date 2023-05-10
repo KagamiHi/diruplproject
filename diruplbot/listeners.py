@@ -3,8 +3,10 @@ from discord.channel import DMChannel
 
 from django.db import transaction
 from asgiref.sync import sync_to_async
+from django.contrib.auth.forms import SetPasswordForm
 
 from dirupl.users.models import CustomUser
+from dirupl.users.forms import CustomUserCreationForm
 
 
 class DirectListenerCog(commands.Cog):
@@ -14,16 +16,52 @@ class DirectListenerCog(commands.Cog):
 
     @commands.command(brief= 'Send to Direct `!registr <login> <password>` to registr.', description='The start of player registration')
     async def register(self, ctx, login, password):
+
         if isinstance(ctx.channel, DMChannel):
-            await self.register_user(ctx.author.id, login, password)
-            await ctx.channel.send (f'You are registred as {login}')
-            
+            answer = await self.register_user(ctx.author.id, login, password)
+            await ctx.channel.send (answer)
         else:
             await ctx.channel.send ('You can register in Direct')
 
     @sync_to_async
     @transaction.atomic
     def register_user(self, discord_user_id, login, password):
-        # User.objects.create(login=login, password=password, discord_user_id=discord_user_id)
-        print (discord_user_id)
-        # print (CustomUser.objects.first())
+        
+        user_creation_form = CustomUserCreationForm(data={'login':login,'discord_user_id':discord_user_id, 'password1':password, 'password2':password})
+        
+        if not user_creation_form.is_valid():
+            return user_creation_form.errors
+        
+        user_creation_form.save()
+        return 'You are registred\nLog in to your account to link the bot to Steam.\n {URL}'
+    
+    @commands.command(brief= 'Send to Direct `!reset_password <new password>` to change password.', description='Forgot your password?')
+    async def reset_password(self, ctx, password):
+
+        if isinstance(ctx.channel, DMChannel):
+            answer = await self.change_user_password(ctx.author.id, password)
+            await ctx.channel.send (answer)
+            
+        else:
+            await ctx.channel.send ('You can register in Direct')
+
+    @sync_to_async
+    @transaction.atomic
+    def change_user_password(self, discord_user_id, password):
+
+        user = CustomUser.objects.filter(discord_user_id=discord_user_id)
+
+        if not user.exists():
+            return f'You are not registred'
+        
+        if len(password)<8:
+            return f'Your password must contain at least 8 characters'
+        
+        user = user.first()
+        set_password_form = SetPasswordForm(user=user, data={'new_password1':password, 'new_password2':password})
+        
+        if not set_password_form.is_valid():
+            return set_password_form.errors
+        
+        set_password_form.save()
+        return 'Your password has been changed'

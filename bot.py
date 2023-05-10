@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 import os
 
 import django
-from dirupl.settings import DISCORD_BOT_TOKEN
 
-from diruplbot.listeners import DirectListenerCog
 
 
 load_dotenv()
@@ -42,6 +40,10 @@ async def main(TOKEN):
 
 if __name__ == "__main__":
     _setup_django()
+    
+    from dirupl.settings import DISCORD_BOT_TOKEN
+    from diruplbot.listeners import DirectListenerCog
+    
     try:
         asyncio.run(main(DISCORD_BOT_TOKEN))
     except KeyboardInterrupt as e:

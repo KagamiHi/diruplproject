@@ -437,44 +437,37 @@ var app = (function () {
 
     function create_fragment(ctx) {
     	let main;
-    	let h1;
-    	let t0;
+    	let nav;
+    	let a0;
     	let t1;
-    	let t2;
+    	let a1;
     	let t3;
-    	let p;
+    	let h1;
     	let t4;
-    	let a;
+    	let t5;
     	let t6;
-    	let t7;
-    	let h3;
-    	let t9;
-    	let t10;
 
     	const block = {
     		c: function create() {
     			main = element("main");
-    			h1 = element("h1");
-    			t0 = text("Hello ");
-    			t1 = text(/*name*/ ctx[0]);
-    			t2 = text("!");
+    			nav = element("nav");
+    			a0 = element("a");
+    			a0.textContent = "home";
+    			t1 = space();
+    			a1 = element("a");
+    			a1.textContent = "Link steam";
     			t3 = space();
-    			p = element("p");
-    			t4 = text("Visit the ");
-    			a = element("a");
-    			a.textContent = "Svelte tutorial";
-    			t6 = text(" to learn how to build Svelte apps.");
-    			t7 = space();
-    			h3 = element("h3");
-    			h3.textContent = "Data from server";
-    			t9 = space();
-    			t10 = text(/*apimessage*/ ctx[1]);
+    			h1 = element("h1");
+    			t4 = text("Hello ");
+    			t5 = text(/*name*/ ctx[0]);
+    			t6 = text("!");
+    			attr_dev(a0, "href", "/");
+    			add_location(a0, file, 16, 2, 320);
+    			attr_dev(a1, "href", "/link-steam");
+    			add_location(a1, file, 17, 2, 343);
+    			add_location(nav, file, 15, 1, 312);
     			attr_dev(h1, "class", "svelte-1tky8bj");
-    			add_location(h1, file, 15, 1, 312);
-    			attr_dev(a, "href", "https://svelte.dev/tutorial");
-    			add_location(a, file, 16, 14, 349);
-    			add_location(p, file, 16, 1, 336);
-    			add_location(h3, file, 18, 1, 449);
+    			add_location(h1, file, 20, 1, 390);
     			attr_dev(main, "class", "svelte-1tky8bj");
     			add_location(main, file, 14, 0, 304);
     		},
@@ -483,23 +476,18 @@ var app = (function () {
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, main, anchor);
-    			append_dev(main, h1);
-    			append_dev(h1, t0);
-    			append_dev(h1, t1);
-    			append_dev(h1, t2);
+    			append_dev(main, nav);
+    			append_dev(nav, a0);
+    			append_dev(nav, t1);
+    			append_dev(nav, a1);
     			append_dev(main, t3);
-    			append_dev(main, p);
-    			append_dev(p, t4);
-    			append_dev(p, a);
-    			append_dev(p, t6);
-    			append_dev(main, t7);
-    			append_dev(main, h3);
-    			append_dev(main, t9);
-    			append_dev(main, t10);
+    			append_dev(main, h1);
+    			append_dev(h1, t4);
+    			append_dev(h1, t5);
+    			append_dev(h1, t6);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*name*/ 1) set_data_dev(t1, /*name*/ ctx[0]);
-    			if (dirty & /*apimessage*/ 2) set_data_dev(t10, /*apimessage*/ ctx[1]);
+    			if (dirty & /*name*/ 1) set_data_dev(t5, /*name*/ ctx[0]);
     		},
     		i: noop,
     		o: noop,
@@ -528,7 +516,7 @@ var app = (function () {
     	onMount(async () => {
     		let resp = await fetch("/api/greet").then(res => res.json());
     		console.log(resp);
-    		$$invalidate(1, apimessage = JSON.stringify(resp));
+    		apimessage = JSON.stringify(resp);
     	});
 
     	$$self.$$.on_mount.push(function () {
@@ -551,14 +539,14 @@ var app = (function () {
 
     	$$self.$inject_state = $$props => {
     		if ('name' in $$props) $$invalidate(0, name = $$props.name);
-    		if ('apimessage' in $$props) $$invalidate(1, apimessage = $$props.apimessage);
+    		if ('apimessage' in $$props) apimessage = $$props.apimessage;
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [name, apimessage];
+    	return [name];
     }
 
     class App extends SvelteComponentDev {
