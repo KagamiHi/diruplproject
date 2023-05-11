@@ -8,7 +8,7 @@ class CredentialManager(models.Manager):
         sender_id = 976529667804
         appId = "wp:receiver.push.com#{}".format(uuid4())
         credential_dict = register(sender_id=sender_id, app_id=appId)
-        credential = self.create(
+        credential = self.model(
             user=user,
             keys_private = credential_dict['keys']['private'],
             keys_public = credential_dict['keys']['public'],
@@ -20,4 +20,5 @@ class CredentialManager(models.Manager):
             gcm_securitytoken = credential_dict['gcm']['securityToken'],
             gcm_appid = credential_dict['gcm']['appId'],
         )
+        credential.save()
         return credential

@@ -17,13 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from dirupl.spa.views import SpaView, SpaLinkSteamView
-from dirupl.api.views import GreetingApi
+from dirupl.spa.views import SpaView
+from dirupl.api.views import CheckingLinkApi
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("api/greet", GreetingApi.as_view()),
+    path("api/checklink", CheckingLinkApi.as_view()),
     path("", SpaView.as_view(), name="spa"),
-    path("link-steam", SpaLinkSteamView.as_view()),
 ]

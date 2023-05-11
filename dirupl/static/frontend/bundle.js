@@ -437,57 +437,50 @@ var app = (function () {
 
     function create_fragment(ctx) {
     	let main;
-    	let nav;
-    	let a0;
-    	let t1;
-    	let a1;
-    	let t3;
     	let h1;
-    	let t4;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let h3;
     	let t5;
     	let t6;
 
     	const block = {
     		c: function create() {
     			main = element("main");
-    			nav = element("nav");
-    			a0 = element("a");
-    			a0.textContent = "home";
-    			t1 = space();
-    			a1 = element("a");
-    			a1.textContent = "Link steam";
-    			t3 = space();
     			h1 = element("h1");
-    			t4 = text("Hello ");
-    			t5 = text(/*name*/ ctx[0]);
-    			t6 = text("!");
-    			attr_dev(a0, "href", "/");
-    			add_location(a0, file, 16, 2, 320);
-    			attr_dev(a1, "href", "/link-steam");
-    			add_location(a1, file, 17, 2, 343);
-    			add_location(nav, file, 15, 1, 312);
+    			t0 = text("Hello ");
+    			t1 = text(/*name*/ ctx[0]);
+    			t2 = text("!");
+    			t3 = space();
+    			h3 = element("h3");
+    			h3.textContent = "Data from server";
+    			t5 = space();
+    			t6 = text(/*apimessage*/ ctx[1]);
     			attr_dev(h1, "class", "svelte-1tky8bj");
-    			add_location(h1, file, 20, 1, 390);
+    			add_location(h1, file, 16, 1, 318);
+    			add_location(h3, file, 18, 1, 344);
     			attr_dev(main, "class", "svelte-1tky8bj");
-    			add_location(main, file, 14, 0, 304);
+    			add_location(main, file, 14, 0, 308);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, main, anchor);
-    			append_dev(main, nav);
-    			append_dev(nav, a0);
-    			append_dev(nav, t1);
-    			append_dev(nav, a1);
-    			append_dev(main, t3);
     			append_dev(main, h1);
-    			append_dev(h1, t4);
-    			append_dev(h1, t5);
-    			append_dev(h1, t6);
+    			append_dev(h1, t0);
+    			append_dev(h1, t1);
+    			append_dev(h1, t2);
+    			append_dev(main, t3);
+    			append_dev(main, h3);
+    			append_dev(main, t5);
+    			append_dev(main, t6);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*name*/ 1) set_data_dev(t5, /*name*/ ctx[0]);
+    			if (dirty & /*name*/ 1) set_data_dev(t1, /*name*/ ctx[0]);
+    			if (dirty & /*apimessage*/ 2) set_data_dev(t6, /*apimessage*/ ctx[1]);
     		},
     		i: noop,
     		o: noop,
@@ -514,9 +507,9 @@ var app = (function () {
     	let apimessage = "Waiting for server...";
 
     	onMount(async () => {
-    		let resp = await fetch("/api/greet").then(res => res.json());
+    		let resp = await fetch("/api/checklink").then(res => res.json());
     		console.log(resp);
-    		apimessage = JSON.stringify(resp);
+    		$$invalidate(1, apimessage = JSON.stringify(resp));
     	});
 
     	$$self.$$.on_mount.push(function () {
@@ -539,14 +532,14 @@ var app = (function () {
 
     	$$self.$inject_state = $$props => {
     		if ('name' in $$props) $$invalidate(0, name = $$props.name);
-    		if ('apimessage' in $$props) apimessage = $$props.apimessage;
+    		if ('apimessage' in $$props) $$invalidate(1, apimessage = $$props.apimessage);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [name];
+    	return [name, apimessage];
     }
 
     class App extends SvelteComponentDev {

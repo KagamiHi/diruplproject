@@ -15,5 +15,6 @@ class Credential(UUIDModel):
     gcm_androidid = models.BigIntegerField()
     gcm_securitytoken = models.BigIntegerField()
     gcm_appid = models.CharField(max_length=255)
+    rust_registration_status = models.BooleanField(default = False)
 
     objects = CredentialManager()

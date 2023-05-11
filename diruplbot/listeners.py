@@ -7,7 +7,7 @@ from django.contrib.auth.forms import SetPasswordForm
 
 from dirupl.users.models import CustomUser
 from dirupl.users.forms import CustomUserCreationForm
-
+from dirupl.address_directory.models import Credential
 
 class DirectListenerCog(commands.Cog):
     
@@ -32,7 +32,11 @@ class DirectListenerCog(commands.Cog):
         if not user_creation_form.is_valid():
             return user_creation_form.errors
         
-        user_creation_form.save()
+        user = user_creation_form.save()
+        """
+        Create credential for user.
+        """
+        Credential.objects.create(user=user)
         return 'You are registred\nLog in to your account to link the bot to Steam.\n {URL}'
     
     @commands.command(brief= 'Send to Direct `!reset_password <new password>` to change password.', description='Forgot your password?')
@@ -40,8 +44,7 @@ class DirectListenerCog(commands.Cog):
 
         if isinstance(ctx.channel, DMChannel):
             answer = await self.change_user_password(ctx.author.id, password)
-            await ctx.channel.send (answer)
-            
+            await ctx.channel.send (answer)  
         else:
             await ctx.channel.send ('You can register in Direct')
 
@@ -49,15 +52,14 @@ class DirectListenerCog(commands.Cog):
     @transaction.atomic
     def change_user_password(self, discord_user_id, password):
 
-        user = CustomUser.objects.filter(discord_user_id=discord_user_id)
+        user = CustomUser.objects.filter(discord_user_id=discord_user_id).first()
 
-        if not user.exists():
+        if user is None:
             return f'You are not registred'
         
         if len(password)<8:
             return f'Your password must contain at least 8 characters'
         
-        user = user.first()
         set_password_form = SetPasswordForm(user=user, data={'new_password1':password, 'new_password2':password})
         
         if not set_password_form.is_valid():
