@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
 
+
     export let name;
 
     let apimessage = "Waiting for server...";
@@ -16,8 +17,13 @@
 	
 	<h1>Hello {name}!</h1>
 	
-	<h3>Data from server</h3>
-    {apimessage}
+	{#if apimessage["link_steam_status"]}
+		Servers
+	{/if}
+
+	{#if !apimessage["link_steam_status"]}
+		Instruction
+	{/if}
 	
 </main>
 

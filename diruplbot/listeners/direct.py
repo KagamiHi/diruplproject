@@ -9,17 +9,25 @@ from dirupl.users.models import CustomUser
 from dirupl.users.forms import CustomUserCreationForm
 from dirupl.address_directory.models import Credential
 
+
+from diruplbot.utils import Link_app
+import logging
+
+log = logging.getLogger("DiruplBot")
+
+
 class DirectListenerCog(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(brief= 'Send to Direct `!registr <login> <password>` to registr.', description='The start of player registration')
+    @commands.command(brief= 'Send to Direct `!registr <login> <password>` to registr.', description='The start of player registration.')
     async def register(self, ctx, login, password):
 
         if isinstance(ctx.channel, DMChannel):
-            answer = await self.register_user(ctx.author.id, login, password)
-            await ctx.channel.send (answer)
+            async with ctx.channel.typing():
+                answer = await self.register_user(ctx.author.id, login, password)
+                await ctx.channel.send (answer)
         else:
             await ctx.channel.send ('You can register in Direct')
 
@@ -36,15 +44,20 @@ class DirectListenerCog(commands.Cog):
         """
         Create credential for user.
         """
-        Credential.objects.create(user=user)
-        return 'You are registred\nLog in to your account to link the bot to Steam.\n {URL}'
+        try:
+            Credential.objects.create(user=user)
+        except KeyError as e:
+            log.debug(f"Keyerror: {e}")
+            return 'Registration is not available at the moment'
+        return 'You are registred\Send `!link_steam <steam login> <steam password>` to link the bot to Steam.\n {URL}'
     
     @commands.command(brief= 'Send to Direct `!reset_password <new password>` to change password.', description='Forgot your password?')
     async def reset_password(self, ctx, password):
 
         if isinstance(ctx.channel, DMChannel):
-            answer = await self.change_user_password(ctx.author.id, password)
-            await ctx.channel.send (answer)  
+            async with ctx.channel.typing():
+                answer = await self.change_user_password(ctx.author.id, password)
+                await ctx.channel.send (answer)  
         else:
             await ctx.channel.send ('You can register in Direct')
 
@@ -67,3 +80,13 @@ class DirectListenerCog(commands.Cog):
         
         set_password_form.save()
         return 'Your password has been changed'
+    
+    @commands.command(brief= 'Send to Direct `!link_steam <steam login> <steam password>` to link steam and rust for new Rust+ app.', description='The second step of the registration.')
+    async def link_steam(self, ctx, login, password):
+
+        if not isinstance(ctx.channel, DMChannel):
+            await ctx.channel.send ('You can link steam in Direct')
+
+        async with ctx.channel.typing():
+            la = Link_app(self.bot, ctx, login, password)
+            await la.link()

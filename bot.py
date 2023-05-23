@@ -24,7 +24,7 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
-    print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}\n')
+    print(f'\n\nLogged in as: {bot.user.name}\n')
 
 
 def _setup_django():
@@ -34,7 +34,9 @@ def _setup_django():
 async def main(TOKEN):
     
     async with bot:
+        await bot.add_cog(BaseListenerCog(bot))
         await bot.add_cog(DirectListenerCog(bot))
+        await bot.add_cog(ServerListenerCog(bot))
         await bot.start(TOKEN)
     
 
@@ -42,8 +44,8 @@ if __name__ == "__main__":
     _setup_django()
     
     from dirupl.settings import DISCORD_BOT_TOKEN
-    from diruplbot.listeners import DirectListenerCog
-    
+    from diruplbot.listeners import BaseListenerCog, DirectListenerCog, ServerListenerCog
+
     try:
         asyncio.run(main(DISCORD_BOT_TOKEN))
     except KeyboardInterrupt as e:
