@@ -1,6 +1,6 @@
 from discord.ui import View, button
 from discord import ButtonStyle
-from dirupl.address_directory.models import Server
+from dirupl.address_directory.models import Server, Guildinfo
 
 # from rustsocket.app import 
 
@@ -14,10 +14,11 @@ class ServerButtonChooseView(View):
     async def choose_server(self, int, button):
         await int.response.edit_message(view=ServerButtonDeclineView(self.server_id))
         server = await Server.objects.filter(id=self.server_id).afirst()
-        if server is None:
+        guildinfo = await Guildinfo.objects.filter(guild_id=int.guild_id).afirst()
+        if guildinfo is None:
             return
-        server.stream = True
-        await server.asave()
+        guildinfo.server = server
+        await guildinfo.asave()
         
 
 

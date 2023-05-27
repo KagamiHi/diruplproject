@@ -14,13 +14,20 @@ class Server(UUIDModel):
     img = models.URLField(max_length=200)
     logo = models.URLField(max_length=200)
     ip = models.CharField(max_length=255)
-    playerid = models.CharField(max_length=255)
-    playertoken = models.CharField(max_length=255)
+    _playerid = models.CharField(max_length=255)
+    _playertoken = models.CharField(max_length=255)
     port = models.CharField(max_length=255)
     date_created = models.DateTimeField(default=timezone.now)
-    stream = models.BooleanField(default=False)
 
     objects = ServerManager()
 
     def __str__(self):
         return self.name
+    
+    @property
+    def playerid(self):
+        return int(self._playerid)
+    
+    @property
+    def playertoken(self):
+        return int(self._playertoken)

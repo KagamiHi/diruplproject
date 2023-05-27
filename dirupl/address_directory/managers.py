@@ -3,9 +3,10 @@ from django.db import models
 from uuid import uuid4
 from push_receiver.register import register
 
+
 import logging
 
-log = logging.getLogger("CredentialServerManager")
+log = logging.getLogger("Manager")
 
 class CredentialManager(models.Manager):
     def create(self, user):
@@ -54,3 +55,17 @@ class ServerManager(models.Manager):
             return
         return server
 
+class GuildinfoManager(models.Manager):
+    async def acreate(self, guild_id, inviter_id, channel_id, notification_settings):
+        try:
+            guildinfo = self.model(
+                guild_id = guild_id, 
+                inviter_id = inviter_id,
+                channel_id = channel_id, 
+                notification_settings = notification_settings,
+            )
+            await guildinfo.asave()
+        except KeyError as e:
+            log.debug(f'{e}')
+            return
+        return guildinfo

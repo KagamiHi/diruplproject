@@ -1,9 +1,9 @@
 from dirupl.users.models import CustomUser
 from dirupl.address_directory.models import Server
-from .button import ServerButtonChooseView, ServerButtonDeclineView
+from .servers_menu import ServersMenuView
 
 
-async def server_to_msg(ctx):
+async def servers_to_msg(ctx, rust_sockets):
     user = await CustomUser.objects.filter(discord_user_id=ctx.author.id).afirst()
     if user is None:
         await ctx.channel.send("You are not registered")
@@ -13,9 +13,6 @@ async def server_to_msg(ctx):
         await ctx.channel.send("Send to Direct `!LFS` command")
         return
     
-    async for server in servers:
-        if server.stream:
-            await ctx.channel.send(f'```• {server.name}\n{server.desc}```', view=ServerButtonDeclineView(server.id))
-        else:
-            await ctx.channel.send(f'```• {server.name}\n{server.desc}```', view=ServerButtonChooseView(server.id))
+    servers_list = [server async for server in servers]
+    await ctx.channel.send(f"{ctx.author.display_name}'s servers list:", view=ServersMenuView(rust_sockets, servers_list))
     return

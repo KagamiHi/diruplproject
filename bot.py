@@ -22,6 +22,8 @@ bot = commands.Bot(
     intents=intents,
     )
 
+rust_sockets = {}
+
 @bot.event
 async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name}\n')
@@ -34,9 +36,9 @@ def _setup_django():
 async def main(TOKEN):
     
     async with bot:
-        await bot.add_cog(BaseListenerCog(bot))
+        await bot.add_cog(BaseListenerCog(bot, rust_sockets))
         await bot.add_cog(DirectListenerCog(bot))
-        await bot.add_cog(ServerListenerCog(bot))
+        await bot.add_cog(ServerListenerCog(bot, rust_sockets))
         await bot.start(TOKEN)
     
 
