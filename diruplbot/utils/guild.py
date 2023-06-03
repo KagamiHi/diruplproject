@@ -2,7 +2,7 @@ from .channels_menu import ChannelsMenuView
 from discord import TextChannel
 
 from dirupl.address_directory.models import Guildinfo, NotificationSettings
-from rustsocket.app import CustomRustSocket
+
 
 class Guild():
     def __init__(self,inviter, guild):

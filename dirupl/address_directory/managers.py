@@ -45,8 +45,8 @@ class ServerManager(models.Manager):
                 img = dict['img'],
                 logo = dict['logo'],
                 ip = dict['ip'],
-                playerid = dict['playerId'],
-                playertoken = dict['playerToken'],
+                _playerid = dict['playerId'],
+                _playertoken = dict['playerToken'],
                 port = dict['port']
             )
             server.save()

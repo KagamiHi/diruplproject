@@ -30,7 +30,13 @@ class BaseListenerCog(commands.Cog):
         async for gi in Guildinfo.objects.select_related('server', 'notification_settings').filter(server__isnull=False).all():
             channel = await self.bot.fetch_channel(gi.channel_id)
             rustsocket = CustomRustSocket(gi, channel)
+            if not await rustsocket.start():
+                await channel.send('Server is broken')
+                pass
+                # await gi.server.adelete()
+                # gi.server = None
+                # await gi.asave()
+                # continue
             self.rust_sockets[gi.guild_id] = rustsocket # add socket to the dict
-            await rustsocket.start()
             
                 

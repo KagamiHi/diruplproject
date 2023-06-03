@@ -46,12 +46,15 @@ class Server_info_catcher():
 
   def on_notification(self, obj, notification, data_message):
     server_dict = loads(notification['data']['body'])
-    print (server_dict)
     
-    this_server = Server.objects.filter(user=self.user, server_id = server_dict['id']).first()
-    if this_server is not None:
+    if server_dict['type'] != 'server':
       return
     
+    this_server = Server.objects.filter(user=self.user, ip = server_dict['ip']).first()
+    if this_server is not None:
+      if server_dict['playerToken'] == this_server._playertoken:
+        return
+      this_server.delete()
     server_info = Server.objects.create_from_dict(self.user, server_dict)
     if server_info is None:
       log.debug(f"Server is not created")

@@ -30,17 +30,24 @@ class ServersMenu(Select):
         if server is None:
             return
         
-        await self.rust_sockets[interaction.guild_id].break_socket()
+        guild_id = interaction.guild_id
+        if guild_id in self.rust_sockets:
+            await self.rust_sockets[guild_id].break_socket()
 
-        guildinfo = await self.save_new_server(self,interaction.guild_id, server)
+        guildinfo = await self.save_new_server(guild_id, server)
         
         rustsocket = CustomRustSocket(guildinfo, interaction.channel)
-        await rustsocket.start()
-        self.rust_sockets[interaction.guild_id] = rustsocket
+        if not await rustsocket.start():
+            await interaction.channel.send('Server is broken')
+            # guildinfo.server = None
+            # await guildinfo.asave()
+            # await server.adelete()
+            
+        self.rust_sockets[guild_id] = rustsocket
         
 
-    async def save_new_server(self,guild_id, server):
-        guildinfo = await Guildinfo.objects.select_related('notification_settings').aget(guild_id=guild_id)
+    async def save_new_server(self, guild_id, server):
+        guildinfo = await Guildinfo.objects.select_related('notification_settings').aget(_guild_id=guild_id)
         
         if guildinfo is None:
             return
