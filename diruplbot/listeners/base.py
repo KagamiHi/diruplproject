@@ -14,14 +14,15 @@ class BaseListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
+        ### When the bot joins a guild, creates Guild to build Guildinfo in datebase ###
         integrations = await guild.integrations()
         for integration in integrations:
-            if isinstance(integration, BotIntegration):
-                if integration.application.user.name == self.bot.user.name:
+            if isinstance(integration, BotIntegration): 
+                if integration.application.user.name == self.bot.user.name: # finds this bot
                     bot_inviter = integration.user # returns a discord.User object
                     
                     new_guild = Guild(bot_inviter, guild)
-                    await new_guild.send_select_channel()
+                    await new_guild.send_select_channel() # send select menu to setup Dirupl channel
                     return new_guild # returns a diruplbot.utils.Guild object
                 
     @commands.Cog.listener()
@@ -32,11 +33,10 @@ class BaseListenerCog(commands.Cog):
             rustsocket = CustomRustSocket(gi, channel)
             if not await rustsocket.start():
                 await channel.send('Server is broken')
-                pass
-                # await gi.server.adelete()
-                # gi.server = None
-                # await gi.asave()
-                # continue
+                await gi.server.adelete()
+                gi.server = None
+                await gi.asave()
+                continue
             self.rust_sockets[gi.guild_id] = rustsocket # add socket to the dict
             
                 

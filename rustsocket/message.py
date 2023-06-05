@@ -1,3 +1,5 @@
+from math import sqrt
+
 
 items_dict = {
     -1685290200:"12 Gauge Buckshot",
@@ -827,28 +829,40 @@ types_dict = {
 
 
 class MessageEvent:
-    def __init__(self, events, worldsize, steam_id = None):
+    def __init__(self, events, worldsize = None, member_x = None, member_y = None, show_location = False, show_distance = False):
         self.events = events
         self.worldsize = worldsize
-        self.steam_id = steam_id
+        self.member_x = member_x
+        self.member_y = member_y
+        self.show_location = show_location
+        self.show_distance = show_distance
         self.messages_list = []
 
     async def create_message(self):
         return ''.join(self.messages_list)
     
-    async def convert_coordinates(self, x, y):
+    async def calculate_step(self):
         worldsize = self.worldsize
         gridwidth = 0.0066666666666667 * worldsize
         step = round(worldsize/gridwidth)
-        letter = 65 + x // step
+        return step
+
+    async def convert_coordinates(self, x, y):
+        self.step = await self.calculate_step()
+        letter = 65 + x // self.step
         if letter > 90:
             char = "AA"
+        elif letter < 64:
+            char = "A"
         else:
             char = chr(int(letter))
         
-        num = str(int(y//step))
+        num = str(int(y//self.step))
 
         return char + num
+
+    async def calculate_distance(self, member_x, member_y, event_x, event_y):
+        return sqrt((event_x - member_x)**2 + (event_y - member_y)**2)
 
 
 class MessageVendingInfo(MessageEvent):
@@ -879,26 +893,24 @@ class MessageEventsInfo(MessageEvent):
 
     async def data_processing(self):
         for event in self.events:
-            map_grid = await self.convert_coordinates(event.x, event.y)
-            event_string = f'{types_dict[event.type]} {map_grid} '
+            
+            event_string = f'{types_dict[event.type]}'
+
+            if self.show_location and self.worldsize:
+                map_grid = await self.convert_coordinates(event.x, event.y)
+                event_string += f' {map_grid}'
+            
+            if self.show_distance and self.member_x and self.member_y and self.worldsize:
+                distance = await self.calculate_distance(self.member_x, self.member_y,event.x, event.y)
+                if not self.step:
+                    self.step = self.calculate_step
+                squares_number = round((distance/self.step), 1)
+                event_string += f' {squares_number} grid squares'
+            
             self.messages_list.append(event_string)
         if self.messages_list:
             return await self.create_message()
         
-    async def data_processing_with_distance(self, members):
-        distance = ''
-        for m in members:
-            if m.steam_id == self.steam_id:
-                if m.is_alive:
-                    member_x,member_y = m.x, m.y
-                    distance = '1metr'
-                else:
-                    distance = "You're dead"
-                break
 
-        for event in self.events:
-            map_grid = await self.convert_coordinates(event.x, event.y)
-            event_string = f'{types_dict[event.type]} {map_grid} {distance}'
-            self.messages_list.append(event_string)
-        if self.messages_list:
-            return await self.create_message()
+        
+    

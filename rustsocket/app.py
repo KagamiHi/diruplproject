@@ -103,14 +103,6 @@ class CustomRustSocket():
         server_time = time_on_server.time
         await self.send_message(f'Server time: {server_time}')
 
-    async def change_time_status(self):
-        if self.settings.check_time:
-            self.time_future.cancel()
-            self.settings.check_time = False
-        else:
-            self.settings.check_time = True
-            self.time_future = asyncio.ensure_future(self.check_time_loop())
-        await self.settings.asave()
 
     async def get_server_info(self):
         server_info = await self.socket.get_info()
@@ -129,15 +121,26 @@ class CustomRustSocket():
         
     async def get_server_events(self, steam_id = None):
         events = await self.socket.get_current_events()
-        # if not events:
-        #     await self.send_message('No events on server.')
-        #     return
+
+        if not events:
+            await self.send_message('No events on server.')
+            return
         
-        info = MessageEventsInfo(events, self.size, steam_id)
-        team_info = await self.socket.get_team_info()
-        message = await info.data_processing_with_distance(team_info.members)
-        if message:
-            await self.send_message(message)
+        info = MessageEventsInfo(events, worldsize = self.size)
+
+        if self.settings.show_location:
+            info.show_location = True
+
+        if self.settings.show_distance:
+            info.show_distance = True
+            if not steam_id:
+                steam_id = self.server._playerid
+            team_info = await self.socket.get_team_info()
+            info.member_x, info.member_y = await self.get_member_coodinates(team_info.members, steam_id)
+        message = await info.data_processing()
+
+        
+        await self.send_message(message)
         
                 
 ################ Messages parts ##################
@@ -150,6 +153,7 @@ class CustomRustSocket():
             message = event.message
             if message.message.startswith('!'):
                 await self.get_discord_command(message)
+                return
 
             member_list = [member.name for member in self.channel.members]
             if message.message.split(':')[0] in member_list:
@@ -171,8 +175,28 @@ class CustomRustSocket():
             await self.check_server_time()
         elif match(r'shop [a-zA-Z]{1,20}', command_name):
             await self.get_vending_machines(command_name.split(' ')[1])
-        elif command_name in ['events', ' events']:
+        elif command_name in ['events']:
             await self.get_server_events(event.steam_id)
+
+############## Settings #########################
+
+    async def change_time_status(self):
+        if self.settings.check_time:
+            self.time_future.cancel()
+            self.settings.check_time = False
+        else:
+            self.settings.check_time = True
+            self.time_future = asyncio.ensure_future(self.check_time_loop())
+        await self.settings.asave()
+
+    async def change_location_status(self):
+        self.settings.show_location = not self.settings.show_location
+        await self.settings.asave()
+
+    async def change_distance_status(self):
+        self.settings.show_distance = not self.settings.show_distance
+        await self.settings.asave()
+
 
 ############## Others ###########################
 
@@ -188,6 +212,13 @@ class CustomRustSocket():
 
         app_message = await self.socket.remote.get_response(app_request.seq, app_request)
         return app_message.response.map_markers.markers
+
+    async def get_member_coodinates(self, members, steam_id):
+        for m in members:
+                if m.steam_id == steam_id and m.is_alive:
+                    return m.x, m.y
+        return None, None
+
 
 
 

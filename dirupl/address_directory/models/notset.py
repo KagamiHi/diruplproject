@@ -8,3 +8,6 @@ class NotificationSettings(UUIDModel):
     last_message_time = models.PositiveBigIntegerField(default=1, blank=True, null=True)
     show_location = models.BooleanField(default = False)
     show_distance = models.BooleanField(default = False)
+
+    def __str__(self):
+        return f"show location:{self.show_location},show distance:{self.show_distance}"

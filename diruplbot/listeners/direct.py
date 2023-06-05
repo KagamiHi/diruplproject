@@ -50,7 +50,8 @@ class DirectListenerCog(commands.Cog):
             log.debug(f"Keyerror: {e}")
             return 'Registration is not available at the moment'
         return 'You are registred\Send `!link_steam <steam login> <steam password>` to link the bot to Steam.\n {URL}'
-    
+
+
     @commands.command(brief= 'Send to Direct `!reset_password <new password>` to change password.', description='Forgot your password?')
     async def reset_password(self, ctx, password):
 
@@ -60,6 +61,7 @@ class DirectListenerCog(commands.Cog):
                 await ctx.channel.send (answer)  
         else:
             await ctx.channel.send ('You can register in Direct')
+
 
     @sync_to_async
     @transaction.atomic
@@ -81,6 +83,7 @@ class DirectListenerCog(commands.Cog):
         set_password_form.save()
         return 'Your password has been changed'
     
+    
     @commands.command(brief= 'Send to Direct `!link_steam <steam login> <steam password>` to link steam and rust for new Rust+ app.', description='The second step of the registration.')
     async def link_steam(self, ctx, login, password):
 
@@ -90,3 +93,5 @@ class DirectListenerCog(commands.Cog):
         async with ctx.channel.typing():
             la = Link_app(self.bot, ctx, login, password)
             await la.link()
+
+    

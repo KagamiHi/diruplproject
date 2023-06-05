@@ -45,13 +45,13 @@ class Guild():
         if self.channel is None:
             return
 
-        guild_model = await Guildinfo.objects.filter(guild_id=self.guild.id).afirst()
+        guild_model = await Guildinfo.objects.filter(_guild_id=self.guild.id).afirst()
         if guild_model:
             return
         
         notification_settings = await NotificationSettings.objects.acreate()
         guild_model = await Guildinfo.objects.acreate(
-            guild_id=self.guild.id, 
+            _guild_id=self.guild.id, 
             inviter_id=self.inviter.id, 
             channel_id=self.channel.id,
             notification_settings=notification_settings
