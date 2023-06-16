@@ -21,6 +21,9 @@ class Server(UUIDModel):
 
     objects = ServerManager()
 
+    class Meta:
+        ordering = ['date_created']
+
     def __str__(self):
         return self.name
     
@@ -31,3 +34,4 @@ class Server(UUIDModel):
     @property
     def playertoken(self):
         return int(self._playertoken)
+    

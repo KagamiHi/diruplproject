@@ -2,14 +2,17 @@ from .channels_menu import ChannelsMenuView
 from discord import TextChannel
 
 from dirupl.address_directory.models import Guildinfo, NotificationSettings
+from dirupl.users.models import CustomUser
 
 
 class Guild():
-    def __init__(self,inviter, guild):
+    def __init__(self, bot, inviter, guild):
+        self.bot = bot
         self.inviter = inviter
         self.guild = guild
         self.channel = None
         self.channels = None
+        self.members = None
 
     async def is_valid(self):
         if self.inviter:
@@ -28,7 +31,7 @@ class Guild():
 
         for channel in all_channels:
             if isinstance(channel, TextChannel):
-                if channel.members:
+                if [m.name for m in channel.members if m.bot and m.id == self.bot.user.id]:
                     allowed_channels.append(channel)
         if allowed_channels:
             self.channels = allowed_channels
@@ -51,11 +54,19 @@ class Guild():
         
         notification_settings = await NotificationSettings.objects.acreate()
         guild_model = await Guildinfo.objects.acreate(
-            _guild_id=self.guild.id, 
+            _guild_id=self.guild.id,
+            name = self.guild.name,
             inviter_id=self.inviter.id, 
             channel_id=self.channel.id,
-            notification_settings=notification_settings
+            notification_settings=notification_settings,
             )
+        
+        for member in self.channel.members:
+            user = await CustomUser.objects.filter(discord_user_id=member.id).afirst()
+            if user:
+                await guild_model.members.aadd(user)
+
+        await guild_model.asave()
         self.guild_model = guild_model
         return guild_model
 

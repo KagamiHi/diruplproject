@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 
 from dirupl.spa.views import SpaView
-from dirupl.api.views import CheckingLinkApi
+from dirupl.api.views import ServersSettingsApi
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("api/checklink", CheckingLinkApi.as_view()),
+    path("api/checkservers", ServersSettingsApi.as_view()),
     path("", SpaView.as_view(), name="spa"),
 ]

@@ -868,15 +868,31 @@ class MessageEvent:
 class MessageVendingInfo(MessageEvent):
     async def data_processing(self, item_name):
         for event in self.events:
-            if event.type == 3 and event.sell_orders:
-                message = await self.refine_vending_machine_info(event, item_name)
-                if message:
-                    self.messages_list.append(message)
-        return await self.create_message()
+            if event.type != 3 and not event.sell_orders:
+                continue
+            message = await self.refine_vending_machine_info(event, item_name)
+            if message:
+                self.messages_list.append(message)
+                
+        if self.messages_list:
+            return await self.create_message()
 
     async def refine_vending_machine_info(self, event, item_name):
-        map_grid = await self.convert_coordinates(event.x, event.y)
-        message = ""
+        line = ''
+        first_column = event.name
+        dist_column = ''
+
+        if  self.show_location and self.worldsize:
+            map_grid = await self.convert_coordinates(event.x, event.y)
+            first_column += f' {map_grid}'
+
+        if self.show_distance and self.member_x and self.member_y and self.worldsize:
+                distance = await self.calculate_distance(self.member_x, self.member_y,event.x, event.y)
+                if not self.step:
+                    self.step = self.calculate_step
+                squares_number = round((distance/self.step), 1)
+                dist_column = f' {squares_number} grid squares'
+        
         for sell_order in event.sell_orders:
             if sell_order.amount_in_stock == 0:
                 continue
@@ -884,9 +900,11 @@ class MessageVendingInfo(MessageEvent):
             item_name = item_name.lower()
             if item_name not in order_item:
                 continue
-
-            message += f"{event.name} {map_grid}|{sell_order.quantity} {items_dict[sell_order.item_id]} - {sell_order.cost_per_item} {items_dict[sell_order.currency_id]}\n"
-        return message
+            
+            line += first_column + f"|{sell_order.quantity} {items_dict[sell_order.item_id]} - {sell_order.cost_per_item} {items_dict[sell_order.currency_id]}" + dist_column +'\n'
+        
+        
+        return line
     
 
 class MessageEventsInfo(MessageEvent):

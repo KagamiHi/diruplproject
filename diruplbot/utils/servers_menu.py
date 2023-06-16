@@ -1,6 +1,8 @@
 from discord import SelectOption, Interaction
 from discord.ui import View, Select
 
+from rustplus.exceptions import RequestError
+
 from rustsocket import CustomRustSocket
 from dirupl.address_directory.models import Guildinfo, Server
 
@@ -37,11 +39,16 @@ class ServersMenu(Select):
         guildinfo = await self.save_new_server(guild_id, server)
         
         rustsocket = CustomRustSocket(guildinfo, interaction.channel)
-        if not await rustsocket.start():
+        try:
+            await rustsocket.start()
+        except RequestError:
+            await guildinfo.server.adelete()
+            guildinfo.server = None
+            await guildinfo.asave()
             await interaction.channel.send('Server is broken')
-            # guildinfo.server = None
-            # await guildinfo.asave()
-            # await server.adelete()
+        except ConnectionAbortedError:
+            await interaction.channel.send('Server is not available')
+            return
             
         self.rust_sockets[guild_id] = rustsocket
         

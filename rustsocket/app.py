@@ -7,7 +7,6 @@ from rustplus import ChatEvent
 from rustplus.api.remote.rustplus_proto import AppEmpty
 
 from .message import MessageVendingInfo, MessageEventsInfo
-from .utils import Server_timer
 
 
 class CustomRustSocket():
@@ -22,8 +21,6 @@ class CustomRustSocket():
         if not await self.user_connect():
             return
         await self.get_team_chat()
-        if self.settings.check_time:
-            self.time_future = asyncio.ensure_future(self.check_time_loop())
         return True
 
     async def break_socket(self):
@@ -35,10 +32,10 @@ class CustomRustSocket():
     async def user_connect(self):
         self.socket = RustSocket(self.server.ip, self.server.port, self.server.playerid, self.server.playertoken)
 
-        await self.socket.connect()
         try:
+            await self.socket.connect(retries=5)
             server_info = await self.socket.get_info()
-        except RequestError:
+        except (RequestError, ConnectionAbortedError):
             return
         self.size = server_info.size
         await self.message_receiver()
@@ -74,45 +71,34 @@ class CustomRustSocket():
                 self.settings.last_message_time = message.time
         await self.settings.asave()
 
+    async def change_channel(self, new_channel):
+        self.channel = new_channel
+        self.model.channel_id = new_channel.id
+        await self.model.asave()
+        return self.model.channel_id
 
 ################ Regular functions ###################
-    async def server_time_loop(self):
-        def str_time_to_int(string):
-            time_parts = string.split(':')
-            time_in_minutes = int(time_parts[0])*60+int(time_parts[1])
-            return time_in_minutes
-        
-        rust_time = await self.socket.get_time()
-        act_time = str_time_to_int(rust_time.time)
-        res_time = act_time + 30
-        await asyncio.sleep(150)
-        rust_time = await self.socket.get_time()
-        act_time = str_time_to_int(rust_time.time)
-        if res_time == act_time:
-            print (True)
-        else:
-            print (res_time-act_time)
 
-
-    async def check_time_loop(self):
-        timer = Server_timer(self.socket, self.send_message)
-        
-
-    async def check_server_time(self):
+    async def get_server_time(self):
         time_on_server = await self.socket.get_time()
         server_time = time_on_server.time
         await self.send_message(f'Server time: {server_time}')
-
 
     async def get_server_info(self):
         server_info = await self.socket.get_info()
         await self.channel.send(f"{server_info.name} {server_info.players}/{server_info.max_players}\n In queue: {server_info.queued_players}")
 
-    async def get_vending_machines(self, item_name):
+    async def get_vending_machines(self, item_name, steam_id = None):
         events = await self.custom_get_markers()
-        if not events:
-            return
-        info = MessageVendingInfo(events, self.size)
+        
+        info = MessageVendingInfo(events, worldsize = self.size,show_location=self.settings.vend_show_location, show_distance=self.settings.vend_show_distance)
+        
+        if self.settings.vend_show_distance:
+            if not steam_id:
+                steam_id = self.server._playerid
+            team_info = await self.socket.get_team_info()
+            info.member_x, info.member_y = await self.get_member_coodinates(team_info.members, steam_id)
+        
         message = await info.data_processing(item_name)
         if message:
             await self.channel.send(message)
@@ -126,13 +112,9 @@ class CustomRustSocket():
             await self.send_message('No events on server.')
             return
         
-        info = MessageEventsInfo(events, worldsize = self.size)
+        info = MessageEventsInfo(events, worldsize = self.size, show_location=self.settings.event_show_location, show_distance=self.settings.event_show_distance)
 
-        if self.settings.show_location:
-            info.show_location = True
-
-        if self.settings.show_distance:
-            info.show_distance = True
+        if self.settings.event_show_distance:
             if not steam_id:
                 steam_id = self.server._playerid
             team_info = await self.socket.get_team_info()
@@ -174,28 +156,47 @@ class CustomRustSocket():
         elif command_name in ['show_time', 'st']:
             await self.check_server_time()
         elif match(r'shop [a-zA-Z]{1,20}', command_name):
-            await self.get_vending_machines(command_name.split(' ')[1])
+            await self.get_vending_machines(command_name.split(' ')[1], event.steam_id)
         elif command_name in ['events']:
             await self.get_server_events(event.steam_id)
 
 ############## Settings #########################
 
-    async def change_time_status(self):
-        if self.settings.check_time:
-            self.time_future.cancel()
-            self.settings.check_time = False
+    async def change_event_location_status(self):
+        self.settings.event_show_location = not self.settings.event_show_location
+        await self.settings.asave()
+        if self.settings.event_show_location:
+            status = 'visible'
         else:
-            self.settings.check_time = True
-            self.time_future = asyncio.ensure_future(self.check_time_loop())
-        await self.settings.asave()
+            status = 'hidden'
+        await self.channel.send(f'Event locations {status}')
 
-    async def change_location_status(self):
-        self.settings.show_location = not self.settings.show_location
+    async def change_event_distance_status(self):
+        self.settings.event_show_distance = not self.settings.event_show_distance
         await self.settings.asave()
+        if self.settings.event_show_distance:
+            status = 'visible'
+        else:
+            status = 'hidden'
+        await self.channel.send(f'Events distances {status}')
 
-    async def change_distance_status(self):
-        self.settings.show_distance = not self.settings.show_distance
+    async def change_vend_location_status(self):
+        self.settings.vend_show_location = not self.settings.vend_show_location
         await self.settings.asave()
+        if self.settings.event_show_distance:
+            status = 'visible'
+        else:
+            status = 'hidden'
+        await self.channel.send(f'Vending machines locations {status}')
+
+    async def change_vend_distance_status(self):
+        self.settings.vend_show_distance = not self.settings.vend_show_distance
+        await self.settings.asave()
+        if self.settings.event_show_distance:
+            status = 'visible'
+        else:
+            status = 'hidden'
+        await self.channel.send(f'Vending machines distances {status}')
 
 
 ############## Others ###########################

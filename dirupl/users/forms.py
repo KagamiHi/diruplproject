@@ -10,6 +10,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ("login","discord_user_id")
 
 
+
 class CustomUserChangeForm(UserChangeForm):
 
     class Meta:

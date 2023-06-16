@@ -35,19 +35,20 @@ class CredentialManager(models.Manager):
 
 class ServerManager(models.Manager):
     def create_from_dict(self, user, dict):
+        desc = dict['desc'].split()
         try:
             server = self.model(
                 user = user,
                 server_id = dict['id'],
                 name = dict['name'],
-                desc = dict['desc'].replace('//','/'),
+                desc = desc,
                 url = dict['url'],
                 img = dict['img'],
                 logo = dict['logo'],
                 ip = dict['ip'],
                 _playerid = dict['playerId'],
                 _playertoken = dict['playerToken'],
-                port = dict['port']
+                port = dict['port'],
             )
             server.save()
         except KeyError as e:

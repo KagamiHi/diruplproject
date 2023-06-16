@@ -4,10 +4,11 @@ from discord.channel import DMChannel
 from django.db import transaction
 from asgiref.sync import sync_to_async
 from django.contrib.auth.forms import SetPasswordForm
+from django.forms.utils import ErrorDict
 
 from dirupl.users.models import CustomUser
 from dirupl.users.forms import CustomUserCreationForm
-from dirupl.address_directory.models import Credential
+from dirupl.address_directory.models import Credential, Guildinfo
 
 
 from diruplbot.utils import Link_app
@@ -21,7 +22,7 @@ class DirectListenerCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(brief= 'Send to Direct `!registr <login> <password>` to registr.', description='The start of player registration.')
+    @commands.command(brief= 'Registration', description='The start of player registration.')
     async def register(self, ctx, login, password):
 
         if isinstance(ctx.channel, DMChannel):
@@ -31,28 +32,44 @@ class DirectListenerCog(commands.Cog):
         else:
             await ctx.channel.send ('You can register in Direct')
 
+    async def register_user(self, discord_user_id, login, password):
+        
+        user = await self.create_user(login, discord_user_id, password)
+        if isinstance(user, ErrorDict):
+            error_dict = user.as_data()
+            error = str(error_dict[list(error_dict)[0]][0]).replace("['", "").replace("']", "")
+            return error
+        
+        discord_user = await self.bot.fetch_user(discord_user_id)
+        common_guilds = discord_user.mutual_guilds
+        for guild in common_guilds:
+            gi = await Guildinfo.objects.aget(_guild_id=guild.id)
+            await gi.members.aadd(user)
+            await gi.asave()
+
+        """
+        Create credential for user.
+        """
+        try:
+            await Credential.objects.acreate(user=user)
+        except KeyError as e:
+            log.debug(f"Keyerror: {e}")
+            return 'Registration is not available at the moment'
+        return 'You are registred\Send `!link_steam <steam login> <steam password>` to link the bot to Steam.\n {URL}'
+
     @sync_to_async
     @transaction.atomic
-    def register_user(self, discord_user_id, login, password):
-        
+    def create_user(self, login, discord_user_id, password):
         user_creation_form = CustomUserCreationForm(data={'login':login,'discord_user_id':discord_user_id, 'password1':password, 'password2':password})
         
         if not user_creation_form.is_valid():
             return user_creation_form.errors
         
         user = user_creation_form.save()
-        """
-        Create credential for user.
-        """
-        try:
-            Credential.objects.create(user=user)
-        except KeyError as e:
-            log.debug(f"Keyerror: {e}")
-            return 'Registration is not available at the moment'
-        return 'You are registred\Send `!link_steam <steam login> <steam password>` to link the bot to Steam.\n {URL}'
 
+        return user
 
-    @commands.command(brief= 'Send to Direct `!reset_password <new password>` to change password.', description='Forgot your password?')
+    @commands.command(brief= 'Change password', description='Forgot your password?')
     async def reset_password(self, ctx, password):
 
         if isinstance(ctx.channel, DMChannel):
@@ -84,7 +101,7 @@ class DirectListenerCog(commands.Cog):
         return 'Your password has been changed'
     
     
-    @commands.command(brief= 'Send to Direct `!link_steam <steam login> <steam password>` to link steam and rust for new Rust+ app.', description='The second step of the registration.')
+    @commands.command(brief= 'Link steam and rust for new Rust+ app', description='The second step of the registration.')
     async def link_steam(self, ctx, login, password):
 
         if not isinstance(ctx.channel, DMChannel):
