@@ -35,7 +35,7 @@ class CredentialManager(models.Manager):
 
 class ServerManager(models.Manager):
     def create_from_dict(self, user, dict):
-        desc = dict['desc'].split()
+        desc = dict['desc'].replace('//n','\n')
         try:
             server = self.model(
                 user = user,
@@ -57,10 +57,11 @@ class ServerManager(models.Manager):
         return server
 
 class GuildinfoManager(models.Manager):
-    async def acreate(self, guild_id, inviter_id, channel_id, notification_settings):
+    async def acreate(self, guild_id, name, inviter_id, channel_id, notification_settings):
         try:
             guildinfo = self.model(
-                guild_id = guild_id, 
+                _guild_id = guild_id,
+                name = name, 
                 inviter_id = inviter_id,
                 channel_id = channel_id, 
                 notification_settings = notification_settings,

@@ -1,8 +1,7 @@
 from discord.ext import commands
 from discord import BotIntegration
 
-from rustplus.exceptions import RequestError
-
+from rustplus.exceptions import RequestError, ClientNotConnectedError
 from diruplbot.utils import Guild
 from dirupl.address_directory.models import Guildinfo
 from dirupl.users.models import CustomUser
@@ -75,7 +74,7 @@ class BaseListenerCog(commands.Cog):
             rustsocket = CustomRustSocket(gi, channel)
             try:
                 await rustsocket.start()
-            except RequestError:
+            except (RequestError, ClientNotConnectedError):
                 await channel.send('Server is broken')
                 await gi.server.adelete()
                 gi.server = None

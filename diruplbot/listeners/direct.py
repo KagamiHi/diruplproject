@@ -10,6 +10,8 @@ from dirupl.users.models import CustomUser
 from dirupl.users.forms import CustomUserCreationForm
 from dirupl.address_directory.models import Credential, Guildinfo
 
+from uuid import uuid4
+from push_receiver.register import register
 
 from diruplbot.utils import Link_app
 import logging
@@ -112,3 +114,36 @@ class DirectListenerCog(commands.Cog):
             await la.link()
 
     
+    @commands.command(brief= 'Create new credentials')
+    async def new_credentials(self, ctx):
+        
+        if not isinstance(ctx.channel, DMChannel):
+            await ctx.channel.send ('You can link steam in Direct')
+
+        async with ctx.channel.typing():
+            await self.change_credential(ctx.author.id)
+
+        return
+    
+    @sync_to_async
+    @transaction.atomic
+    def change_credential(self, user_id):
+        
+        user = CustomUser.objects.filter(discord_user_id=user_id).first()
+        credential = Credential.objects.filter(user=user).first()
+        
+        sender_id = 976529667804
+        appId = "wp:receiver.push.com#{}".format(uuid4())
+        credential_dict = register(sender_id=sender_id, app_id=appId)
+
+        credential.keys_private = credential_dict['keys']['private']
+        credential.keys_public = credential_dict['keys']['public']
+        credential.keys_secret = credential_dict['keys']['secret']
+        credential.fcm_token = credential_dict['fcm']['token']
+        credential.fcm_pushset = credential_dict['fcm']['pushSet']
+        credential.gcm_token = credential_dict['gcm']['token']
+        credential.gcm_androidid = credential_dict['gcm']['androidId']
+        credential.gcm_securitytoken = credential_dict['gcm']['securityToken']
+        credential.gcm_appid = credential_dict['gcm']['appId']
+        credential.rust_registration_status = False
+        credential.save()

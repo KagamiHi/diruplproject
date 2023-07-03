@@ -40,9 +40,6 @@ class Link_app:
                 await self.channel.send ('Registration is not available at the moment')
                 return False
 
-        # if user_credential.rust_registration_status:
-        #     await self.channel.send ('You are already linked!')
-        #     return False
         self.user_credential = user_credential
         return True
 
@@ -50,10 +47,12 @@ class Link_app:
     async def link(self):
 
         if not await self.check_bd():
+            await self.channel.send ('Linking is failed. Try again later.')
             return
         
         rustplus_auth_token = await self.LinkSteamWithRustPlus()
         if rustplus_auth_token is None:
+            await self.channel.send ('Linking is failed. Try again later.')
             return
         
         expoPushToken = await self.getExpoPushToken()

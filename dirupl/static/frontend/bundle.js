@@ -479,7 +479,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (52:2) {#each apimessage as guildinfo}
+    // (51:2) {#each apimessage as guildinfo}
     function create_each_block(ctx) {
     	let div11;
     	let div10;
@@ -616,75 +616,75 @@ var app = (function () {
     			span3 = element("span");
     			t23 = space();
     			attr_dev(h3, "class", "svelte-1ocd0an");
-    			add_location(h3, file, 55, 12, 1409);
+    			add_location(h3, file, 54, 12, 1341);
     			attr_dev(h4, "class", "svelte-1ocd0an");
-    			add_location(h4, file, 56, 12, 1454);
+    			add_location(h4, file, 55, 12, 1386);
     			attr_dev(p0, "class", "svelte-1ocd0an");
-    			add_location(p0, file, 57, 6, 1501);
+    			add_location(p0, file, 56, 6, 1433);
     			attr_dev(div0, "class", "flip-card-front svelte-1ocd0an");
-    			add_location(div0, file, 54, 5, 1367);
+    			add_location(div0, file, 53, 5, 1299);
     			attr_dev(p1, "class", "svelte-1ocd0an");
-    			add_location(p1, file, 62, 16, 1661);
+    			add_location(p1, file, 61, 16, 1593);
     			attr_dev(div1, "class", "text-box svelte-1ocd0an");
-    			add_location(div1, file, 61, 14, 1622);
+    			add_location(div1, file, 60, 14, 1554);
     			attr_dev(input0, "type", "checkbox");
     			input0.checked = input0_checked_value = /*guildinfo*/ ctx[7].notification_settings.event_show_location;
     			attr_dev(input0, "class", "svelte-1ocd0an");
-    			add_location(input0, file, 65, 16, 1763);
+    			add_location(input0, file, 64, 16, 1695);
     			attr_dev(span0, "class", "slider round svelte-1ocd0an");
-    			add_location(span0, file, 66, 16, 1910);
+    			add_location(span0, file, 65, 16, 1842);
     			attr_dev(label0, "class", "switch svelte-1ocd0an");
-    			add_location(label0, file, 64, 14, 1724);
+    			add_location(label0, file, 63, 14, 1656);
     			attr_dev(div2, "class", "row svelte-1ocd0an");
-    			add_location(div2, file, 60, 12, 1590);
+    			add_location(div2, file, 59, 12, 1522);
     			attr_dev(p2, "class", "svelte-1ocd0an");
-    			add_location(p2, file, 71, 16, 2070);
+    			add_location(p2, file, 70, 16, 2002);
     			attr_dev(div3, "class", "text-box svelte-1ocd0an");
-    			add_location(div3, file, 70, 14, 2031);
+    			add_location(div3, file, 69, 14, 1963);
     			attr_dev(input1, "type", "checkbox");
     			input1.checked = input1_checked_value = /*guildinfo*/ ctx[7].notification_settings.event_show_distance;
     			attr_dev(input1, "class", "svelte-1ocd0an");
-    			add_location(input1, file, 74, 16, 2175);
+    			add_location(input1, file, 73, 16, 2107);
     			attr_dev(span1, "class", "slider round svelte-1ocd0an");
-    			add_location(span1, file, 75, 16, 2322);
+    			add_location(span1, file, 74, 16, 2254);
     			attr_dev(label1, "class", "switch svelte-1ocd0an");
-    			add_location(label1, file, 73, 14, 2136);
+    			add_location(label1, file, 72, 14, 2068);
     			attr_dev(div4, "class", "row svelte-1ocd0an");
-    			add_location(div4, file, 69, 12, 1999);
+    			add_location(div4, file, 68, 12, 1931);
     			attr_dev(p3, "class", "svelte-1ocd0an");
-    			add_location(p3, file, 80, 16, 2482);
+    			add_location(p3, file, 79, 16, 2414);
     			attr_dev(div5, "class", "text-box svelte-1ocd0an");
-    			add_location(div5, file, 79, 14, 2443);
+    			add_location(div5, file, 78, 14, 2375);
     			attr_dev(input2, "type", "checkbox");
     			input2.checked = input2_checked_value = /*guildinfo*/ ctx[7].notification_settings.vend_show_location;
     			attr_dev(input2, "class", "svelte-1ocd0an");
-    			add_location(input2, file, 83, 16, 2594);
+    			add_location(input2, file, 82, 16, 2526);
     			attr_dev(span2, "class", "slider round svelte-1ocd0an");
-    			add_location(span2, file, 84, 16, 2740);
+    			add_location(span2, file, 83, 16, 2672);
     			attr_dev(label2, "class", "switch svelte-1ocd0an");
-    			add_location(label2, file, 82, 14, 2555);
+    			add_location(label2, file, 81, 14, 2487);
     			attr_dev(div6, "class", "row svelte-1ocd0an");
-    			add_location(div6, file, 78, 12, 2411);
+    			add_location(div6, file, 77, 12, 2343);
     			attr_dev(p4, "class", "svelte-1ocd0an");
-    			add_location(p4, file, 89, 16, 2900);
+    			add_location(p4, file, 88, 16, 2832);
     			attr_dev(div7, "class", "text-box svelte-1ocd0an");
-    			add_location(div7, file, 88, 14, 2861);
+    			add_location(div7, file, 87, 14, 2793);
     			attr_dev(input3, "type", "checkbox");
     			input3.checked = input3_checked_value = /*guildinfo*/ ctx[7].notification_settings.vend_show_distance;
     			attr_dev(input3, "class", "svelte-1ocd0an");
-    			add_location(input3, file, 92, 16, 3015);
+    			add_location(input3, file, 91, 16, 2947);
     			attr_dev(span3, "class", "slider round svelte-1ocd0an");
-    			add_location(span3, file, 93, 16, 3161);
+    			add_location(span3, file, 92, 16, 3093);
     			attr_dev(label3, "class", "switch svelte-1ocd0an");
-    			add_location(label3, file, 91, 14, 2976);
+    			add_location(label3, file, 90, 14, 2908);
     			attr_dev(div8, "class", "row svelte-1ocd0an");
-    			add_location(div8, file, 87, 12, 2829);
+    			add_location(div8, file, 86, 12, 2761);
     			attr_dev(div9, "class", "flip-card-back svelte-1ocd0an");
-    			add_location(div9, file, 59, 5, 1549);
+    			add_location(div9, file, 58, 5, 1481);
     			attr_dev(div10, "class", "flip-card-inner svelte-1ocd0an");
-    			add_location(div10, file, 53, 4, 1332);
+    			add_location(div10, file, 52, 4, 1264);
     			attr_dev(div11, "class", "flip-card svelte-1ocd0an");
-    			add_location(div11, file, 52, 3, 1304);
+    			add_location(div11, file, 51, 3, 1236);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div11, anchor);
@@ -783,7 +783,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(52:2) {#each apimessage as guildinfo}",
+    		source: "(51:2) {#each apimessage as guildinfo}",
     		ctx
     	});
 
@@ -818,13 +818,13 @@ var app = (function () {
     			}
 
     			attr_dev(h1, "class", "svelte-1ocd0an");
-    			add_location(h1, file, 46, 2, 1199);
+    			add_location(h1, file, 45, 2, 1131);
     			attr_dev(header, "class", "svelte-1ocd0an");
-    			add_location(header, file, 45, 0, 1188);
+    			add_location(header, file, 44, 0, 1120);
     			attr_dev(div, "class", "cards-container svelte-1ocd0an");
-    			add_location(div, file, 50, 2, 1235);
+    			add_location(div, file, 49, 2, 1167);
     			attr_dev(main, "class", "svelte-1ocd0an");
-    			add_location(main, file, 49, 0, 1226);
+    			add_location(main, file, 48, 0, 1158);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -897,7 +897,6 @@ var app = (function () {
     		for (let i = 0; i < cookies.length; i++) {
     			const cookie = cookies[i].trim();
 
-    			// Does this cookie string begin with the name we want?
     			if (cookie.substring(0, name.length + 1) === name + '=') {
     				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
     				break;

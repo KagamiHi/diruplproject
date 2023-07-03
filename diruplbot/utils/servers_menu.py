@@ -1,7 +1,7 @@
 from discord import SelectOption, Interaction
 from discord.ui import View, Select
 
-from rustplus.exceptions import RequestError
+from rustplus.exceptions import RequestError, ClientNotConnectedError
 
 from rustsocket import CustomRustSocket
 from dirupl.address_directory.models import Guildinfo, Server
@@ -41,7 +41,7 @@ class ServersMenu(Select):
         rustsocket = CustomRustSocket(guildinfo, interaction.channel)
         try:
             await rustsocket.start()
-        except RequestError:
+        except (RequestError, ClientNotConnectedError) as e:
             await guildinfo.server.adelete()
             guildinfo.server = None
             await guildinfo.asave()

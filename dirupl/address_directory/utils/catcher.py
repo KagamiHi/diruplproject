@@ -51,6 +51,7 @@ class Server_info_catcher():
       return
     
     this_server = Server.objects.filter(user=self.user, ip = server_dict['ip']).first()
+    
     if this_server is not None:
       if server_dict['playerToken'] == this_server._playertoken:
         return

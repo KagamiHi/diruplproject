@@ -1,4 +1,3 @@
-import asyncio
 from re import match
 from rustplus import RustSocket
 from rustplus.exceptions import RequestError
@@ -31,12 +30,10 @@ class CustomRustSocket():
 
     async def user_connect(self):
         self.socket = RustSocket(self.server.ip, self.server.port, self.server.playerid, self.server.playertoken)
+        
+        await self.socket.connect(retries=5)
+        server_info = await self.socket.get_info()
 
-        try:
-            await self.socket.connect(retries=5)
-            server_info = await self.socket.get_info()
-        except (RequestError, ConnectionAbortedError):
-            return
         self.size = server_info.size
         await self.message_receiver()
         return True
@@ -86,6 +83,7 @@ class CustomRustSocket():
 
     async def get_server_info(self):
         server_info = await self.socket.get_info()
+        print ('get s info')
         await self.channel.send(f"{server_info.name} {server_info.players}/{server_info.max_players}\n In queue: {server_info.queued_players}")
 
     async def get_vending_machines(self, item_name, steam_id = None):

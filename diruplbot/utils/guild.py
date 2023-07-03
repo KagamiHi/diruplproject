@@ -54,7 +54,7 @@ class Guild():
         
         notification_settings = await NotificationSettings.objects.acreate()
         guild_model = await Guildinfo.objects.acreate(
-            _guild_id=self.guild.id,
+            guild_id=self.guild.id,
             name = self.guild.name,
             inviter_id=self.inviter.id, 
             channel_id=self.channel.id,
